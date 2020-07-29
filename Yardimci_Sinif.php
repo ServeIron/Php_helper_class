@@ -33,10 +33,10 @@
               $form_kontrol = strip_tags(htmlentities(htmlspecialchars($veri)));
 
               $xssl_karakterler = array(
-                  '?','&','gt',';','&quot','&lt','&gt','amp','"',
+                  '?','&','gt',';','&quot','&lt','&gt','amp','"',"'"
               );
               $temizle = array(
-                  '', '', '', '', '', '','','','',
+                  '',
               );
 
             $sonucla[] = str_replace($xssl_karakterler,$temizle, $form_kontrol);          
