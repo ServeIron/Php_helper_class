@@ -2,76 +2,69 @@
   
   class Yardimci_Sinif {
 
-    function turkce_cevir($metin){
-        $turkce_karakterler = array(
+    function turkish_convert($text){
+
+        $turkishCharacter = array(
           'ç', 'Ç', 'ğ', 'Ğ', 'ı', 'İ', 'ö', 'Ö', 'ş', 'Ş', 'ü', 'Ü'
         );
-        $latin_karsiliklari = array(
+        $latinCharacter = array(
           'c', 'C', 'g', 'G', 'i', 'I', 'o', 'O', 's', 'S', 'u', 'U'
         );
       
-        return str_replace($turkce_karakterler, $latin_karsiliklari, $metin);
+        return str_replace($turkishCharacter, $latinCharacter, $text);
       }
 
-      function seo_url_olustur($cumle){
+      function seo_url_create($content){
 
-        $dizi =  explode(" ", $cumle);
-        $ayrac = implode("-",$dizi);
-        $sonuc = mb_strtolower($ayrac,"UTF-8");
+        $arrayConvert =  explode(" ", $content);
+        $reserve = implode("-",$arrayConvert);
+        $result = mb_strtolower($reserve,"UTF-8");
 
-        return $this->turkce_cevir($sonuc);
+        return $this->turkish_convert($result);
       }
 
    
-      function xss_temizle(){
+      function xss_clear(){
 
-        $gelen_arg_sayisi = func_num_args();
-        
-        for($i =0; $i < $gelen_arg_sayisi; $i++){
-                                 
-              $veri = func_get_arg($i);
+        $getNumArg = func_num_args();
 
-              $form_kontrol = strip_tags(htmlentities(htmlspecialchars($veri)));
+        for($i =0; $i < $getNumArg; $i++){
 
-              $xssl_karakterler = array(
+              $getArg = func_get_arg($i);
+              $formControl = strip_tags(htmlentities(htmlspecialchars($getArg)));
+              $xssChars = array(
                   '?','&','gt',';','&quot','&lt','&gt','amp','"',"'"
               );
-              $temizle = array(
+              $clear = array(
                   '',
               );
 
-            $sonucla[] = str_replace($xssl_karakterler,$temizle, $form_kontrol);          
-                       
-         
+            $result[] = str_replace($xssChars,$clear, $formControl);        
+ 
         }
-  
-       return $sonucla;
+         return $result;
     
       }
 
-   // true şifreli verir false ise çözer   
-      function sifre_olustur($sifre,$kontrol = true){ 
+  
+      function encrypt($sifre,$control = true){ 
 
-        $encrypt_method = 'AES-256-CBC'; //sifreleme yontemi
-
-        $secret_key = '11*_33'; //sifreleme anahtari
-
-        $secret_iv = '22-=**_'; //gerekli sifreleme baslama vektoru
-
-        $key = hash('sha256', $secret_key); //anahtar hast fonksiyonu ile sha256 algoritmasi ile sifreleniyor
+        $encrypt_method = 'AES-256-CBC';
+        $secret_key = '11*_33'; 
+        $secret_iv = '22-=**_'; 
+        $key = hash('sha256', $secret_key); 
         
         $iv = substr(hash('sha256', $secret_iv), 0, 16);     
-        $sifrelendi = openssl_encrypt($sifre,$encrypt_method, $key, false, $iv);  
+        $encrypted = openssl_encrypt($sifre,$encrypt_method, $key, false, $iv);  
+        $decrypt = openssl_decrypt($encrypted,$encrypt_method, $key, false, $iv);
 
-        $sifre_cozuldu = openssl_decrypt($sifrelendi,$encrypt_method, $key, false, $iv);
+          if($control == true){      
 
-          if($kontrol == true){      
-
-            return $sifrelendi;
+            return $encrypted;
           }
-          else if($kontrol == false){
+          else if($control == false){
 
-            return $sifre_cozuldu;
+            return $decrypt;
 
           }
                 
@@ -84,98 +77,70 @@
     
         if(count($arr) == 11 && is_int($get_tc)){
     
-            $toplam = array_sum($arr);
-    
-            $on = ((($arr[0] + $arr[2] + $arr[4] + $arr[6] + $arr[8]) * 7) - ($arr[1] + $arr[3] + $arr[5] + $arr[7])) % 10; 
-    
-            $onbir = ($toplam - $arr[10]) % 10;
-    
-            echo $on == $arr[9] && $onbir == $arr[10] ? "Tc kimlik numarası doğru." : "Tc kimlik numarası yanlış";
+            $sum = array_sum($arr);    
+            $ten = ((($arr[0] + $arr[2] + $arr[4] + $arr[6] + $arr[8]) * 7) - ($arr[1] + $arr[3] + $arr[5] + $arr[7])) % 10;     
+            $eleven = ($sum - $arr[10]) % 10;    
+            echo $ten == $arr[9] && $eleven == $arr[10] ? "Tc kimlik numarası doğru." : "Tc kimlik numarası yanlış";
     
            
         }
-        else{
-    
-            echo "Girdiğiniz değer 11 haneli ve rakam olmalı.";
-            
+        else{    
+            echo "Girdiğiniz değer 11 haneli ve rakam olmalı.";            
          }
       
     }
 
 
+      function multi_file_up($fileSetName,$file_type,$file_size,$file_base){
 
-function multi_file_up($file_nme,$file_type,$file_size,$file_base){
+        if($_POST["submit"])
+        {
+            $filecount = count($_FILES[$fileSetName]['name']);
+            $file_type_select = $file_type;
 
-            if($_POST["submit"])
-            {
-                $filecount = count($_FILES[$file_nme]['name']);
+            $warning = array();
+            $control = array();
 
-                $file_type_select = $file_type;
-
-                $uyari = array();
-                $kont = array();
-
-                for($i = 0; $i < $filecount; $i++){
-                                
-                    $fileName = substr($_FILES[$file_nme]['name'][$i],-4,4);
-
-                    $fileRandName= rand(0,999999).$fileName;
-
-                    $fileSize = $_FILES[$file_nme]['size'][$i];
-
-                    $fileTmp = $_FILES[$file_nme]['tmp_name'][$i];
-
-                    $fileType = explode('.',$_FILES[$file_nme]['type'][$i]);
-
-                        foreach($fileType as $cek){
-
-                            if(in_array($cek,$file_type_select) === false){
-
-                                $kont[] = "false";
-
-                                $uyari[] = "Dosya tipi uyuşmuyor";   
+            for($i = 0; $i < $filecount; $i++){
                             
-                            break;
+                $fileName = substr($_FILES[$fileSetName]['name'][$i],-4,4);
+                $fileRandName= rand(0,999999).$fileName;
+                $fileSize = $_FILES[$fileSetName]['size'][$i];
+                $fileTmp = $_FILES[$fileSetName]['tmp_name'][$i];
+                $fileType = explode('.',$_FILES[$fileSetName]['type'][$i]);       
+          
+                    foreach($fileType as $cek){
 
-                            }
+                        if(in_array($cek,$file_type_select) === false){
 
-                            if($fileSize > $file_size) {
+                            $control[] = false;
+                            $warning[] = "Dosya tipi uyuşmuyor";  
+                        break;
 
-                                $kont[] = "false";
-
-                                $uyari[] = "Dosya boyutu fazla.";
-
-                            break;
-                        
-                            }
-
-                            $deneme[] = $fileRandName;
-
-                            $file_tp[] = $fileTmp;
-                                    
                         }
-
+                        if($fileSize > $file_size) {
+                            $control[] = false;
+                            $warning[] = "Dosya boyutu fazla.";
+                        break;
                     
-                } 
-                        if(in_array("false",$kont)){
-                        
-                            return $uyari;
-                        
                         }
-                        else 
-                        {
-                              for($k = 0; $k < count($deneme); $k++)
-                              {
-
-                                     move_uploaded_file($file_tp[$k],$file_base.$deneme[$k]);
-                                     
-                              }
-                               
-                              return $deneme;
+                        $fileGetName[] = $fileRandName;
+                        $file_tp[] = $fileTmp;                                
+                    }                
+                  } 
+                    if(in_array(false,$control)){                    
+                        return $warning;                    
+                    }
+                    else 
+                    {
+                        for($k = 0; $k < count($fileGetName); $k++){
+                          move_uploaded_file($file_tp[$k],$file_base.$fileGetName[$k]);                        
                         }
+                    return $fileGetName;
+                  }
 
-            }
-       }
+          }
+      }
 
 
 
